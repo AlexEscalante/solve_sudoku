@@ -38,9 +38,19 @@ function quadrants(values) {
               q.push(slice(values, ci, ci + rank)); return q; }, []))));
 }
 
+// A valid set of values has unique elements after
+// removing empties
+//
 // Receives an array of arrays of values
 function valid(values) {
   return every(map(values, set => compact(set)), set => set.length === uniq(set).length);
 }
 
-export { quadrants, rows, columns, valid };
+// Returns the indexes of the ampty
+// positions in the board
+function emptyPositions(values) {
+  return reduce(values, (result, value, index) => {
+    if (!value) result.push(index); return result; }, []);
+}
+
+export { quadrants, rows, columns, valid, emptyPositions };

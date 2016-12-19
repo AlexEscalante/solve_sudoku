@@ -1,5 +1,6 @@
+import { range } from 'lodash';
 
-import { quadrants, rows, columns, valid } from './sudoku';
+import { quadrants, rows, columns, valid, emptyPositions } from './sudoku';
 
 const inputRank2 = [
   1, 2, 3, 4,
@@ -53,6 +54,17 @@ const emptyInputRank2 = [
   0, 0, 0, 0,
   0, 0, 0, 0,
   0, 0, 0, 0,
+];
+
+const unsolvedInputRank2 = [
+  1, 0, 0, 4,
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  4, 0, 0, 3,
+];
+
+const unsolvedEmptyPositionsRank2 = [
+  1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14
 ];
 
 const inputRank3 = [
@@ -163,6 +175,28 @@ const emptyInputRank3 = [
   0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
+const unsolvedInputRank3 = [
+  2, 4, 1, 9, 8, 7, 3, 5, 6,
+  5, 0, 0, 0, 0, 0, 0, 0, 9,
+  7, 0, 9, 1, 5, 3, 8, 0, 4,
+  6, 0, 8, 0, 0, 0, 4, 0, 2,
+  9, 0, 7, 0, 3, 0, 1, 0, 8,
+  4, 0, 2, 0, 0, 0, 9, 0, 5,
+  1, 0, 4, 5, 7, 9, 6, 0, 3,
+  3, 0, 0, 0, 0, 0, 0, 0, 1,
+  8, 9, 6, 3, 2, 1, 5, 4, 7,
+];
+
+const unsolvedEmptyPositionsRank3 = [
+  10, 11, 12, 13, 14, 15, 16,
+  19,                     25,
+  28,     30, 31, 32,     34,
+  37,     39,     41,     43,
+  46,     48, 49, 50,     52,
+  55,                     61,
+  64, 65, 66, 67, 68, 69, 70
+];
+
 it('arranges an array values into rows', () => {
   expect(rows(inputRank2)).toEqual(rowsRank2);
   expect(rows(inputRank3)).toEqual(rowsRank3);
@@ -198,4 +232,11 @@ it('detects bad rows,columns and quadrants of a sudoku', () => {
   expect(valid(rows(badInputRank3))).toBe(false);
   expect(valid(columns(badInputRank3))).toBe(false);
   expect(valid(quadrants(badInputRank3))).toBe(false);
+});
+
+it('collects empty positions on the board', () => {
+  expect(emptyPositions(emptyInputRank2)).toEqual(range(0, 2 * 2 * 2 * 2));
+  expect(emptyPositions(emptyInputRank3)).toEqual(range(0, 3 * 3 * 3 * 3));
+  expect(emptyPositions(unsolvedInputRank2)).toEqual(unsolvedEmptyPositionsRank2);
+  expect(emptyPositions(unsolvedInputRank3)).toEqual(unsolvedEmptyPositionsRank3);
 });
