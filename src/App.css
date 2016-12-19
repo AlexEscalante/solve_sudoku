@@ -1,0 +1,40 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sudoku-board {
+  background-color: lightgray;
+  padding: .25em;
+
+  margin: 1em auto;
+}
+
+.sudoku-row {
+  /*border: solid 1px red;*/
+}
+
+.sudoku-cell {
+  background-color: white;
+  padding: 1em;
+}
