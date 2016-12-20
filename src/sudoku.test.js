@@ -1,6 +1,6 @@
 import { range } from 'lodash';
 
-import { quadrants, rows, columns, valid, emptyPositions } from './sudoku';
+import { quadrants, rows, columns, valid, complete, vacants, locate, solve } from './sudoku';
 
 const inputRank2 = [
   1, 2, 3, 4,
@@ -63,7 +63,7 @@ const unsolvedInputRank2 = [
   4, 0, 0, 3,
 ];
 
-const unsolvedEmptyPositionsRank2 = [
+const vacantsRank2 = [
   1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14
 ];
 
@@ -187,7 +187,7 @@ const unsolvedInputRank3 = [
   8, 9, 6, 3, 2, 1, 5, 4, 7,
 ];
 
-const unsolvedEmptyPositionsRank3 = [
+const vacantsRank3 = [
   10, 11, 12, 13, 14, 15, 16,
   19,                     25,
   28,     30, 31, 32,     34,
@@ -218,25 +218,70 @@ it('validates the rows, columns and quadrants of a sudoku', () => {
   expect(valid(columns(inputRank2))).toBe(true);
   expect(valid(quadrants(inputRank2))).toBe(true);
 
+  expect(valid(rows(badInputRank2))).toBe(false);
+  expect(valid(columns(badInputRank2))).toBe(false);
+  expect(valid(quadrants(badInputRank2))).toBe(false);
+
   expect(valid(rows(emptyInputRank3))).toBe(true);
   expect(valid(rows(inputRank3))).toBe(true);
   expect(valid(columns(inputRank3))).toBe(true);
   expect(valid(quadrants(inputRank3))).toBe(true);
-});
-
-it('detects bad rows,columns and quadrants of a sudoku', () => {
-  expect(valid(rows(badInputRank2))).toBe(false);
-  expect(valid(columns(badInputRank2))).toBe(false);
-  expect(valid(quadrants(badInputRank2))).toBe(false);
 
   expect(valid(rows(badInputRank3))).toBe(false);
   expect(valid(columns(badInputRank3))).toBe(false);
   expect(valid(quadrants(badInputRank3))).toBe(false);
 });
 
-it('collects empty positions on the board', () => {
-  expect(emptyPositions(emptyInputRank2)).toEqual(range(0, 2 * 2 * 2 * 2));
-  expect(emptyPositions(emptyInputRank3)).toEqual(range(0, 3 * 3 * 3 * 3));
-  expect(emptyPositions(unsolvedInputRank2)).toEqual(unsolvedEmptyPositionsRank2);
-  expect(emptyPositions(unsolvedInputRank3)).toEqual(unsolvedEmptyPositionsRank3);
+it('validates a whole sudoku', () => {
+  expect(valid(inputRank2)).toBe(true);
+  expect(valid(inputRank3)).toBe(true);
+  expect(valid(emptyInputRank2)).toBe(true);
+  expect(valid(emptyInputRank3)).toBe(true);
+
+  expect(valid(badInputRank2)).toBe(false);
+  expect(valid(badInputRank3)).toBe(false);
+});
+
+it('validate edge cases', () => {
+  expect(valid([])).toBe(false);
+})
+
+it('detects complete sudokus', () => {
+  expect(complete(inputRank2)).toBe(true);
+  expect(complete(inputRank3)).toBe(true);
+  expect(complete(badInputRank2)).toBe(true);
+  expect(complete(badInputRank3)).toBe(true);
+  expect(complete(unsolvedInputRank2)).toBe(false);
+  expect(complete(unsolvedInputRank3)).toBe(false);
+});
+
+it('collects vacant positions on the board', () => {
+  expect(vacants(emptyInputRank2)).toEqual(range(0, 2 * 2 * 2 * 2));
+  expect(vacants(emptyInputRank3)).toEqual(range(0, 3 * 3 * 3 * 3));
+  expect(vacants(unsolvedInputRank2)).toEqual(vacantsRank2);
+  expect(vacants(unsolvedInputRank3)).toEqual(vacantsRank3);
+});
+
+it('locats the row, column and quadrant of any given index in the board', () => {
+  expect(locate(inputRank2, 0)).toEqual([0, 0, 0]);
+  expect(locate(inputRank2, 3)).toEqual([0, 3, 1]);
+  expect(locate(inputRank2, 5)).toEqual([1, 1, 0]);
+  expect(locate(inputRank2, 6)).toEqual([1, 2, 1]);
+  expect(locate(inputRank2, 9)).toEqual([2, 1, 2]);
+  expect(locate(inputRank2, 10)).toEqual([2, 2, 3]);
+  expect(locate(inputRank2, 12)).toEqual([3, 0, 2]);
+  expect(locate(inputRank2, 15)).toEqual([3, 3, 3]);
+
+  expect(locate(inputRank3, 0)).toEqual([0, 0, 0]);
+  expect(locate(inputRank3, 8)).toEqual([0, 8, 2]);
+  expect(locate(inputRank3, 72)).toEqual([8, 0, 6]);
+  expect(locate(inputRank3, 80)).toEqual([8, 8, 8]);
+  expect(locate(inputRank3, 40)).toEqual([4, 4, 4]);
+});
+
+it('solves an unsolved sudoku', () =>  {
+  for (const result of [ solve(unsolvedInputRank2), solve(unsolvedInputRank3) ]) {
+    expect(complete(result)).toBe(true);
+    expect(valid(result)).toBe(true);
+  }
 });

@@ -38,19 +38,53 @@ function quadrants(values) {
               q.push(slice(values, ci, ci + rank)); return q; }, []))));
 }
 
+// A set of values is complete if it doesn't have zeroes
+function complete(values) {
+  return compact(values).length === values.length;
+}
+
 // A valid set of values has unique elements after
 // removing empties
 //
-// Receives an array of arrays of values
+// This method is polymorphic: it can receive a full soduku
+// as an array of values, or sets of values as in rows,
+// columns or quadrants
 function valid(values) {
-  return every(map(values, set => compact(set)), set => set.length === uniq(set).length);
+  if (typeof(values[0]) === "number")
+    return valid(rows(values)) && valid(rows(values)) && valid(quadrants(values))
+  else
+    return Boolean(values.length) && every(map(values, set => compact(set)), set => set.length === uniq(set).length);
 }
 
 // Returns the indexes of the ampty
 // positions in the board
-function emptyPositions(values) {
+function vacants(values) {
   return reduce(values, (result, value, index) => {
     if (!value) result.push(index); return result; }, []);
 }
 
-export { quadrants, rows, columns, valid, emptyPositions };
+// Return an array with the row, column and quadrant indexes of the index passed
+function locate(values, index) {
+  const cellsPerQuadrant = Math.sqrt(values.length),
+        rank = Math.sqrt(cellsPerQuadrant),
+        ri = parseInt(index / cellsPerQuadrant, 10),
+        ci = index % cellsPerQuadrant,
+        qi = parseInt(ci / rank, 10) + parseInt(ri / rank, 10) * rank;
+  return [ ri, ci, qi ];
+}
+
+// returns an array with the possible values
+// available for the index
+function candidates(values, index) {
+  const [ ri, ci, qi ] = locate(values, index);
+  return [];
+}
+
+function solve(values, symbols) {
+  const v = vacants(values);
+
+  const c = candidates(v[0], symbols);
+  return [];
+}
+
+export { quadrants, rows, columns, complete, valid, vacants, locate, solve };
