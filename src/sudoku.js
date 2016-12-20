@@ -1,4 +1,4 @@
-import { slice, flatten, range, map, flatMap, reduce, every, uniq, compact } from 'lodash';
+import { slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, filter } from 'lodash';
 
 // Convert a linear repsentation of sudoku
 // values into an array of arrays representing
@@ -73,18 +73,32 @@ function locate(values, index) {
   return [ ri, ci, qi ];
 }
 
-// returns an array with the possible values
-// available for the index
-function candidates(values, index) {
-  const [ ri, ci, qi ] = locate(values, index);
-  return [];
+// Returns an array with the possible values
+// available for the index.
+function candidates(values, symbols, index) {
+  if (values[index]) return [];
+  const [ ri,  ci, qi ] = locate(values, index);
+  return filter(symbols, sym =>
+    !includes(uniq(compact(concat(rows(values)[ri], columns(values)[ci], quadrants(values)[qi]))), sym));
 }
 
-function solve(values, symbols) {
-  const v = vacants(values);
-
-  const c = candidates(v[0], symbols);
-  return [];
+function move(board, index, value) {
+  return concat(slice(board, 0, index), [value], slice(board, index + 1));
 }
 
-export { quadrants, rows, columns, complete, valid, vacants, locate, solve };
+function solve(board, symbols) {
+  return reduce(vacants(board), (state, v) => {
+    if (complete(state)) return state;
+    const c = candidates(state, symbols, v);
+    while(c.length)
+      try {
+        const m = c.pop(), newState = move(state, v, m);
+        return solve(newState, symbols);
+      } catch (e) {
+        // console.log("backtraking");
+      }
+    throw new Error(`no more candidates for position ${v}`);
+  }, board)
+}
+
+export { quadrants, rows, columns, complete, valid, vacants, locate, candidates, move, solve };

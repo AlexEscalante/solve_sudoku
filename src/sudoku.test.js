@@ -1,6 +1,9 @@
 import { range } from 'lodash';
 
-import { quadrants, rows, columns, valid, complete, vacants, locate, solve } from './sudoku';
+import { quadrants, rows, columns, valid, complete, vacants, locate, candidates, move, solve } from './sudoku';
+
+const rank2symbols = [ 1, 2, 3, 4 ];
+const rank3symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
 
 const inputRank2 = [
   1, 2, 3, 4,
@@ -61,6 +64,20 @@ const unsolvedInputRank2 = [
   0, 0, 0, 0,
   0, 0, 0, 0,
   4, 0, 0, 3,
+];
+
+const unsolvedInputRank2_2 = [
+   1, 2, 0, 4,
+   0, 0, 0, 0,
+   0, 0, 0, 0,
+   4, 0, 0, 3
+];
+
+const unsolvedInputRank2_3 = [
+  1, 3, 2, 4,
+  2, 4, 3, 1,
+  3, 2, 0, 0,
+  4, 0, 0, 3
 ];
 
 const vacantsRank2 = [
@@ -240,6 +257,9 @@ it('validates a whole sudoku', () => {
 
   expect(valid(badInputRank2)).toBe(false);
   expect(valid(badInputRank3)).toBe(false);
+
+  expect(valid(unsolvedInputRank2_2)).toBe(true);
+  expect(valid(unsolvedInputRank2_3)).toBe(true);
 });
 
 it('validate edge cases', () => {
@@ -262,7 +282,7 @@ it('collects vacant positions on the board', () => {
   expect(vacants(unsolvedInputRank3)).toEqual(vacantsRank3);
 });
 
-it('locats the row, column and quadrant of any given index in the board', () => {
+it('locates the row, column and quadrant of any given index in the board', () => {
   expect(locate(inputRank2, 0)).toEqual([0, 0, 0]);
   expect(locate(inputRank2, 3)).toEqual([0, 3, 1]);
   expect(locate(inputRank2, 5)).toEqual([1, 1, 0]);
@@ -279,9 +299,60 @@ it('locats the row, column and quadrant of any given index in the board', () => 
   expect(locate(inputRank3, 40)).toEqual([4, 4, 4]);
 });
 
-it('solves an unsolved sudoku', () =>  {
-  for (const result of [ solve(unsolvedInputRank2), solve(unsolvedInputRank3) ]) {
-    expect(complete(result)).toBe(true);
-    expect(valid(result)).toBe(true);
+it('determines the list of possible moves, called candidates, for a given index', () =>{
+  for (let i = 0; i < 2 * 2; i++) {
+    expect(candidates(emptyInputRank2, rank2symbols, i)).toEqual(rank2symbols);
   }
+  for (let i = 0; i < 3 * 3; i++) {
+    expect(candidates(emptyInputRank3, rank3symbols, i)).toEqual(rank3symbols);
+  }
+  expect(candidates(unsolvedInputRank2, rank2symbols, 0)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 1)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 2)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 3)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 4)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 5)).toEqual([2, 3, 4]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 6)).toEqual([1, 2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 7)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 8)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 9)).toEqual([1, 2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 10)).toEqual([1, 2, 4]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 11)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 12)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 13)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 14)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2symbols, 15)).toEqual([]);
+
+  // extra cases
+  expect(candidates(unsolvedInputRank2_2, rank2symbols, 2)).toEqual([3]);
+  expect(candidates(unsolvedInputRank2_3, rank2symbols, 10)).toEqual([1, 4]);
+  expect(candidates(unsolvedInputRank2_3, rank2symbols, 11)).toEqual([]);
+})
+
+it('makes a move on a board', () => {
+  const answer1 = [
+    1, 0, 0, 4,
+    0, 0, 0, 0,
+    0, 0, 2, 0,
+    4, 0, 0, 3,
+  ], answer2 = [
+    1, 0, 0, 4,
+    0, 1, 0, 0,
+    0, 0, 0, 0,
+    4, 0, 0, 3,
+  ];
+
+  expect(move(unsolvedInputRank2, 10, 2)).toEqual(answer1);
+  expect(move(unsolvedInputRank2, 5, 1)).toEqual(answer2);
+
+  expect(valid(move(unsolvedInputRank2, 10, 2))).toBe(true);
+  expect(valid(move(unsolvedInputRank2, 5, 1))).toBe(false);
+});
+
+it('solves an unsolved sudoku', () =>  {
+  const result1 = solve(unsolvedInputRank2, rank2symbols);
+  const result2 = solve(unsolvedInputRank3, rank3symbols);
+
+  expect(complete(result1)).toBe(true);
+  expect(valid(result2)).toBe(true);
 });
