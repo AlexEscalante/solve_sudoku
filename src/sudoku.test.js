@@ -1,9 +1,7 @@
 import { range } from 'lodash';
 
-import { quadrants, rows, columns, valid, complete, vacants, locate, candidates, move, solve, identity, rankByCandidateCount, shuffle } from './sudoku';
-
-const rank2symbols = [ 1, 2, 3, 4 ];
-const rank3symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+import { rank2Symbols, rank3Symbols, quadrants, rows, columns, valid, complete, vacants, locate, candidates, move,
+  solve, identity, rankByCandidateCount, shuffle } from './sudoku';
 
 const inputRank2 = [
   1, 2, 3, 4,
@@ -106,7 +104,19 @@ const unsolvedExtremeRank3 = [
   1, 0, 0, 0, 5, 0, 0, 0, 6,
   0, 5, 0, 3, 0, 9, 0, 2, 0,
   0, 0, 9, 0, 2, 0, 8, 0, 0,
-]
+];
+
+const badUnsolvedExtremeRank3 = [
+  0, 0, 7, 0, 9, 0, 4, 0, 0,
+  0, 4, 0, 1, 0, 2, 0, 3, 0,
+  3, 0, 0, 0, 7, 0, 0, 0, 9,
+  0, 9, 0, 0, 0, 0, 0, 7, 0,
+  6, 0, 8, 0, 0, 0, 5, 0, 2,
+  0, 1, 0, 0, 0, 0, 0, 8, 0,
+  1, 0, 0, 7, 0, 0, 0, 0, 6,
+  0, 5, 0, 3, 0, 9, 0, 2, 0,
+  0, 0, 9, 0, 2, 0, 8, 0, 7,
+];
 
 const rowsRank3 = [
   [2, 4, 1, 9, 8, 7, 3, 5, 6],
@@ -313,37 +323,37 @@ it('locates the row, column and quadrant of any given index in the board', () =>
 
 it('determines the list of possible moves, called candidates, for a given index', () =>{
   for (let i = 0; i < 2 * 2; i++) {
-    expect(candidates(emptyInputRank2, rank2symbols, i)).toEqual(rank2symbols);
+    expect(candidates(emptyInputRank2, rank2Symbols, i)).toEqual(rank2Symbols);
   }
   for (let i = 0; i < 3 * 3; i++) {
-    expect(candidates(emptyInputRank3, rank3symbols, i)).toEqual(rank3symbols);
+    expect(candidates(emptyInputRank3, rank3Symbols, i)).toEqual(rank3Symbols);
   }
-  expect(candidates(unsolvedInputRank2, rank2symbols, 0)).toEqual([]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 1)).toEqual([2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 2)).toEqual([2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 3)).toEqual([]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 4)).toEqual([2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 5)).toEqual([2, 3, 4]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 6)).toEqual([1, 2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 7)).toEqual([1, 2]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 8)).toEqual([2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 9)).toEqual([1, 2, 3]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 10)).toEqual([1, 2, 4]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 11)).toEqual([1, 2]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 12)).toEqual([]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 13)).toEqual([1, 2]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 14)).toEqual([1, 2]);
-  expect(candidates(unsolvedInputRank2, rank2symbols, 15)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 0)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 1)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 2)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 3)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 4)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 5)).toEqual([2, 3, 4]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 6)).toEqual([1, 2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 7)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 8)).toEqual([2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 9)).toEqual([1, 2, 3]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 10)).toEqual([1, 2, 4]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 11)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 12)).toEqual([]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 13)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 14)).toEqual([1, 2]);
+  expect(candidates(unsolvedInputRank2, rank2Symbols, 15)).toEqual([]);
 
   // extra cases
-  expect(candidates(unsolvedInputRank2_2, rank2symbols, 2)).toEqual([3]);
-  expect(candidates(unsolvedInputRank2_3, rank2symbols, 10)).toEqual([1, 4]);
-  expect(candidates(unsolvedInputRank2_3, rank2symbols, 11)).toEqual([]);
+  expect(candidates(unsolvedInputRank2_2, rank2Symbols, 2)).toEqual([3]);
+  expect(candidates(unsolvedInputRank2_3, rank2Symbols, 10)).toEqual([1, 4]);
+  expect(candidates(unsolvedInputRank2_3, rank2Symbols, 11)).toEqual([]);
 })
 
 it('ranks vacants by the number of candidates', () => {
   const result = [11, 19, 25, 30, 32, 37, 43, 55, 65, 69, 13, 15, 31, 34, 46, 49, 50, 61, 67, 10, 12, 14, 16, 28, 39, 48, 52, 64, 66, 68, 70, 41];
-  expect(rankByCandidateCount(vacants(unsolvedInputRank3), unsolvedInputRank3, rank3symbols)).toEqual(result);
+  expect(rankByCandidateCount(vacants(unsolvedInputRank3), unsolvedInputRank3, rank3Symbols)).toEqual(result);
 })
 
 it('makes a move on a board', () => {
@@ -367,53 +377,59 @@ it('makes a move on a board', () => {
 });
 
 it('solves an unsolved sudoku', () =>  {
-  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols);
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2Symbols);
   console.warn("solved unsolvedInputRank2:", stats2, "bts");
   expect(complete(result2)).toBe(true);
   expect(valid(result2)).toBe(true);
 
-  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols);
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3Symbols);
   console.warn("solved unsolvedInputRank3:", stats3, "bts");
   expect(complete(result3)).toBe(true);
   expect(valid(result3)).toBe(true);
 
-  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols);
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3Symbols);
   console.warn("solved unsolvedExtremeRank3:", stats3_2, "bts");
   expect(complete(result3_2)).toBe(true);
   expect(valid(result3_2)).toBe(true);
 });
 
 it('solves an unsolved sudoku ranking vacants by candidate count', () =>  {
-  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols, identity, rankByCandidateCount);
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2Symbols, identity, rankByCandidateCount);
   console.warn("solved unsolvedInputRank2 ranking vacants by candidate count:", stats2, "bts");
   expect(complete(result2)).toBe(true);
   expect(valid(result2)).toBe(true);
 
-  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols, identity, rankByCandidateCount);
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3Symbols, identity, rankByCandidateCount);
   console.warn("solved unsolvedInputRank3 ranking vacants by candidate count:", stats3, "bts");
   expect(complete(result3)).toBe(true);
   expect(valid(result3)).toBe(true);
 
-  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols, identity, rankByCandidateCount);
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3Symbols, identity, rankByCandidateCount);
   console.warn("solved unsolvedExtremeRank3 ranking vacants by candidate count:", stats3_2, "bts");
   expect(complete(result3_2)).toBe(true);
   expect(valid(result3_2)).toBe(true);
 });
 
 it('solves an unsolved sudoku ranking vacants by candidate count & shuffling candidates', () =>  {
-  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols, shuffle, rankByCandidateCount);
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2Symbols, shuffle, rankByCandidateCount);
   console.warn("solved unsolvedInputRank2 ranking vacants by candidate count & shuffling candidates:", stats2, "bts");
   expect(complete(result2)).toBe(true);
   expect(valid(result2)).toBe(true);
 
-  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols, shuffle, rankByCandidateCount);
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3Symbols, shuffle, rankByCandidateCount);
   console.warn("solved unsolvedInputRank3 ranking vacants by candidate count & shuffling candidates:", stats3, "bts");
   expect(complete(result3)).toBe(true);
   expect(valid(result3)).toBe(true);
 
-  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols, shuffle, rankByCandidateCount);
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3Symbols, shuffle, rankByCandidateCount);
   console.warn("solved unsolvedExtremeRank3 ranking vacants by candidate count & shuffling candidates:", stats3_2, "bts");
   expect(complete(result3_2)).toBe(true);
   expect(valid(result3_2)).toBe(true);
 });
+
+it('fails to solve an impossible sudoku', () => {
+  const [result, stats] = solve(badUnsolvedExtremeRank3, rank3Symbols, shuffle, rankByCandidateCount);
+  console.warn("failed solving unsolvedExtremeRank3 ranking vacants by candidate count & shuffling candidates:", stats, "bts");
+  expect(result).toBe(null);
+})
 

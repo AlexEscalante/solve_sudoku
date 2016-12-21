@@ -2,6 +2,9 @@ import {
   slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, identity, shuffle, filter, sortBy
 } from 'lodash';
 
+const rank2Symbols = [ 1, 2, 3, 4 ];
+const rank3Symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+
 // Convert a linear repsentation of sudoku
 // values into an array of arrays representing
 // rows.
@@ -111,11 +114,16 @@ function solve(board, symbols, rankCandidates = identity, rankVacants = identity
       throw new Error(`no more candidates for position ${v}`);
     }, board);
 
-  console.time('solved');
-  const result = reducer(board, symbols);
-  console.timeEnd('solved');
-
-  return [ result, btCount ];
+  try {
+    console.time('finished in');
+    const result = reducer(board, symbols);
+    console.timeEnd('finished in');
+    return [ result, btCount ];
+  } catch (e) {
+  console.timeEnd('finished in');
+    return [ null, btCount ];
+  }
 }
 
-export { quadrants, rows, columns, complete, valid, vacants, locate, candidates, move, solve, shuffle, identity, rankByCandidateCount };
+export { rank2Symbols, rank3Symbols, quadrants, rows, columns, complete, valid, vacants, locate,
+  candidates, move, solve, shuffle, identity, rankByCandidateCount };
