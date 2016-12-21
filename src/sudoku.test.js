@@ -1,6 +1,6 @@
 import { range } from 'lodash';
 
-import { quadrants, rows, columns, valid, complete, vacants, locate, candidates, move, solve } from './sudoku';
+import { quadrants, rows, columns, valid, complete, vacants, locate, candidates, move, solve, identity, rankByCandidateCount, shuffle } from './sudoku';
 
 const rank2symbols = [ 1, 2, 3, 4 ];
 const rank3symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
@@ -95,6 +95,18 @@ const inputRank3 = [
   3, 7, 5, 8, 4, 6, 2, 9, 1,
   8, 9, 6, 3, 2, 1, 5, 4, 7,
 ];
+
+const unsolvedExtremeRank3 = [
+  0, 0, 7, 0, 9, 0, 4, 0, 0,
+  0, 4, 0, 1, 0, 2, 0, 3, 0,
+  3, 0, 0, 0, 7, 0, 0, 0, 9,
+  0, 9, 0, 0, 0, 0, 0, 7, 0,
+  6, 0, 8, 0, 0, 0, 5, 0, 2,
+  0, 1, 0, 0, 0, 0, 0, 8, 0,
+  1, 0, 0, 0, 5, 0, 0, 0, 6,
+  0, 5, 0, 3, 0, 9, 0, 2, 0,
+  0, 0, 9, 0, 2, 0, 8, 0, 0,
+]
 
 const rowsRank3 = [
   [2, 4, 1, 9, 8, 7, 3, 5, 6],
@@ -329,6 +341,11 @@ it('determines the list of possible moves, called candidates, for a given index'
   expect(candidates(unsolvedInputRank2_3, rank2symbols, 11)).toEqual([]);
 })
 
+it('ranks vacants by the number of candidates', () => {
+  const result = [11, 19, 25, 30, 32, 37, 43, 55, 65, 69, 13, 15, 31, 34, 46, 49, 50, 61, 67, 10, 12, 14, 16, 28, 39, 48, 52, 64, 66, 68, 70, 41];
+  expect(rankByCandidateCount(vacants(unsolvedInputRank3), unsolvedInputRank3, rank3symbols)).toEqual(result);
+})
+
 it('makes a move on a board', () => {
   const answer1 = [
     1, 0, 0, 4,
@@ -351,11 +368,52 @@ it('makes a move on a board', () => {
 
 it('solves an unsolved sudoku', () =>  {
   const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols);
-  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols);
-
-  console.warn("solved rank 2 with backtracks count of", stats2);
-  console.warn("solved rank 3 with backtracks count of", stats3);
-
+  console.warn("solved unsolvedInputRank2:", stats2, "bts");
   expect(complete(result2)).toBe(true);
+  expect(valid(result2)).toBe(true);
+
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols);
+  console.warn("solved unsolvedInputRank3:", stats3, "bts");
+  expect(complete(result3)).toBe(true);
   expect(valid(result3)).toBe(true);
+
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols);
+  console.warn("solved unsolvedExtremeRank3:", stats3_2, "bts");
+  expect(complete(result3_2)).toBe(true);
+  expect(valid(result3_2)).toBe(true);
 });
+
+it('solves an unsolved sudoku ranking vacants by candidate count', () =>  {
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols, identity, rankByCandidateCount);
+  console.warn("solved unsolvedInputRank2 ranking vacants by candidate count:", stats2, "bts");
+  expect(complete(result2)).toBe(true);
+  expect(valid(result2)).toBe(true);
+
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols, identity, rankByCandidateCount);
+  console.warn("solved unsolvedInputRank3 ranking vacants by candidate count:", stats3, "bts");
+  expect(complete(result3)).toBe(true);
+  expect(valid(result3)).toBe(true);
+
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols, identity, rankByCandidateCount);
+  console.warn("solved unsolvedExtremeRank3 ranking vacants by candidate count:", stats3_2, "bts");
+  expect(complete(result3_2)).toBe(true);
+  expect(valid(result3_2)).toBe(true);
+});
+
+it('solves an unsolved sudoku ranking vacants by candidate count & shuffling candidates', () =>  {
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols, shuffle, rankByCandidateCount);
+  console.warn("solved unsolvedInputRank2 ranking vacants by candidate count & shuffling candidates:", stats2, "bts");
+  expect(complete(result2)).toBe(true);
+  expect(valid(result2)).toBe(true);
+
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols, shuffle, rankByCandidateCount);
+  console.warn("solved unsolvedInputRank3 ranking vacants by candidate count & shuffling candidates:", stats3, "bts");
+  expect(complete(result3)).toBe(true);
+  expect(valid(result3)).toBe(true);
+
+  const [result3_2, stats3_2] = solve(unsolvedExtremeRank3, rank3symbols, shuffle, rankByCandidateCount);
+  console.warn("solved unsolvedExtremeRank3 ranking vacants by candidate count & shuffling candidates:", stats3_2, "bts");
+  expect(complete(result3_2)).toBe(true);
+  expect(valid(result3_2)).toBe(true);
+});
+

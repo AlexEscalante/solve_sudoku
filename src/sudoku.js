@@ -1,4 +1,6 @@
-import { slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, shuffle, filter } from 'lodash';
+import {
+  slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, identity, shuffle, filter, sortBy
+} from 'lodash';
 
 // Convert a linear repsentation of sudoku
 // values into an array of arrays representing
@@ -86,12 +88,16 @@ function move(board, index, value) {
   return concat(slice(board, 0, index), [value], slice(board, index + 1));
 }
 
-function solve(board, symbols) {
+function rankByCandidateCount(vacants, values, symbols) {
+  return sortBy(vacants, v => candidates(values, symbols, v).length);
+}
+
+function solve(board, symbols, rankCandidates = identity, rankVacants = identity) {
   let btCount = 0;
   const reducer = (board, symbols) =>
-    reduce(vacants(board), (state, v) => {
+    reduce(rankVacants(vacants(board), board, symbols), (state, v) => {
       if (complete(state)) return state;
-      const c = shuffle(candidates(state, symbols, v));
+      const c = rankCandidates(candidates(state, symbols, v));
       // console.log("solving ", quadrants(state));
       // console.log(`for ${v} with ${c}`);
       while(c.length)
@@ -105,7 +111,11 @@ function solve(board, symbols) {
       throw new Error(`no more candidates for position ${v}`);
     }, board);
 
-  return [reducer(board, symbols), btCount];
+  console.time('solved');
+  const result = reducer(board, symbols);
+  console.timeEnd('solved');
+
+  return [ result, btCount ];
 }
 
-export { quadrants, rows, columns, complete, valid, vacants, locate, candidates, move, solve };
+export { quadrants, rows, columns, complete, valid, vacants, locate, candidates, move, solve, shuffle, identity, rankByCandidateCount };
