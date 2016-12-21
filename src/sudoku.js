@@ -1,4 +1,4 @@
-import { slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, filter } from 'lodash';
+import { slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, shuffle, filter } from 'lodash';
 
 // Convert a linear repsentation of sudoku
 // values into an array of arrays representing
@@ -87,18 +87,25 @@ function move(board, index, value) {
 }
 
 function solve(board, symbols) {
-  return reduce(vacants(board), (state, v) => {
-    if (complete(state)) return state;
-    const c = candidates(state, symbols, v);
-    while(c.length)
-      try {
-        const m = c.pop(), newState = move(state, v, m);
-        return solve(newState, symbols);
-      } catch (e) {
-        // console.log("backtraking");
-      }
-    throw new Error(`no more candidates for position ${v}`);
-  }, board)
+  let btCount = 0;
+  const reducer = (board, symbols) =>
+    reduce(vacants(board), (state, v) => {
+      if (complete(state)) return state;
+      const c = shuffle(candidates(state, symbols, v));
+      // console.log("solving ", quadrants(state));
+      // console.log(`for ${v} with ${c}`);
+      while(c.length)
+        try {
+          const m = c.pop(), newState = move(state, v, m);
+          return reducer(newState, symbols);
+        } catch (e) {
+          // console.log("backtraking");
+          btCount++;
+        }
+      throw new Error(`no more candidates for position ${v}`);
+    }, board);
+
+  return [reducer(board, symbols), btCount];
 }
 
 export { quadrants, rows, columns, complete, valid, vacants, locate, candidates, move, solve };

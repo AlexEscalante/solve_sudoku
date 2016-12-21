@@ -350,9 +350,12 @@ it('makes a move on a board', () => {
 });
 
 it('solves an unsolved sudoku', () =>  {
-  const result1 = solve(unsolvedInputRank2, rank2symbols);
-  const result2 = solve(unsolvedInputRank3, rank3symbols);
+  const [result2, stats2] = solve(unsolvedInputRank2, rank2symbols);
+  const [result3, stats3] = solve(unsolvedInputRank3, rank3symbols);
 
-  expect(complete(result1)).toBe(true);
-  expect(valid(result2)).toBe(true);
+  console.warn("solved rank 2 with backtracks count of", stats2);
+  console.warn("solved rank 3 with backtracks count of", stats3);
+
+  expect(complete(result2)).toBe(true);
+  expect(valid(result3)).toBe(true);
 });
