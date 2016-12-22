@@ -95,8 +95,9 @@ function rankByCandidateCount(vacants, values, symbols) {
   return sortBy(vacants, v => candidates(values, symbols, v).length);
 }
 
-function solve(board, symbols, rankCandidates = identity, rankVacants = identity) {
-  let btCount = 0;
+function solve(board, symbols, rankCandidates = shuffle, rankVacants = rankByCandidateCount) {
+  let btCount = 0, slides = [];
+
   const reducer = (board, symbols) =>
     reduce(rankVacants(vacants(board), board, symbols), (state, v) => {
       if (complete(state)) return state;
@@ -106,6 +107,7 @@ function solve(board, symbols, rankCandidates = identity, rankVacants = identity
       while(c.length)
         try {
           const m = c.pop(), newState = move(state, v, m);
+          slides.push(newState);
           return reducer(newState, symbols);
         } catch (e) {
           // console.log("backtraking");
@@ -118,10 +120,10 @@ function solve(board, symbols, rankCandidates = identity, rankVacants = identity
     console.time('finished in');
     const result = reducer(board, symbols);
     console.timeEnd('finished in');
-    return [ result, btCount ];
+    return [ result, slides, btCount ];
   } catch (e) {
   console.timeEnd('finished in');
-    return [ null, btCount ];
+    return [ null, slides, btCount ];
   }
 }
 

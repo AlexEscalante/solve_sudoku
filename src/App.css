@@ -28,13 +28,28 @@
   padding: .25em;
 
   margin: 1em auto;
-}
 
-.sudoku-row {
-  /*border: solid 1px red;*/
+  white-space: pre;
 }
 
 .sudoku-cell {
   background-color: white;
+}
+
+.toolbar {
+  margin: 1em auto;
+}
+
+button {
+  font-size: 1em;
+  padding: .5em 1em;
+}
+
+input {
+  height: 100%;
+  width: 1em;
+  font-size: 1em;
   padding: 1em;
+  text-align: center;
+  border: none;
 }

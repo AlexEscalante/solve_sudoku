@@ -72,13 +72,7 @@ it('renders a sudoku board with 9 rows and 81 cells', () => {
 
 it('renders a unique cell for every value', () => {
   const board = shallow(<Board values={goodCompleteTwo}/>);
-  const qs = quadrants(goodCompleteTwo);
-  const root = Math.sqrt(goodCompleteTwo.length);
 
-  for (const q of range(root)) {
-    const quadrant = board.find(`.sudoku-quadrant.q-${q}`);
-    for (const c of range(root)) {
-      expect(quadrant.find(`.sudoku-cell.c-${c}`).contains(qs[q][c])).toBe(true);
-    }
-  }
+  for (let i = 0; i < goodCompleteTwo.length; i++)
+    expect(board.find(`.sudoku-cell.c-${i} input`).props().value).toEqual(goodCompleteTwo[i]);
 })
