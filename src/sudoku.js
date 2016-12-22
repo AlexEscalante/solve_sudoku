@@ -1,5 +1,5 @@
 import {
-  slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, identity, shuffle, filter, sortBy
+  slice, flatten, range, map, flatMap, reduce, every, uniq, compact, concat, includes, filter, sortBy
 } from 'lodash';
 
 const rank2Symbols = [ 1, 2, 3, 4 ];
@@ -56,7 +56,7 @@ function complete(values) {
 // columns or quadrants
 function valid(values) {
   if (typeof(values[0]) === "number")
-    return valid(rows(values)) && valid(rows(values)) && valid(quadrants(values))
+    return valid(rows(values)) && valid(columns(values)) && valid(quadrants(values))
   else
     return Boolean(values.length) && every(map(values, set => compact(set)), set => set.length === uniq(set).length);
 }
@@ -87,45 +87,52 @@ function candidates(values, symbols, index) {
     !includes(uniq(compact(concat(rows(values)[ri], columns(values)[ci], quadrants(values)[qi]))), sym));
 }
 
+// Returns a board which is the same as the received
+// but with the index set to the given value
 function move(board, index, value) {
   return concat(slice(board, 0, index), [value], slice(board, index + 1));
 }
 
-function rankByCandidateCount(vacants, values, symbols) {
-  return sortBy(vacants, v => candidates(values, symbols, v).length);
+// Returns an array of vacant cells with their candidate values,
+// ordered ascendingly by the number of candidates
+function vacantsByCandidateCount(state, symbols) {
+  const vacantsWithCandidates = map(vacants(state), v => [v, candidates(state, symbols, v)]);
+  const ordered = sortBy(vacantsWithCandidates, ([v, candidates]) => candidates.length);
+  // console.log('vacantsWithCandidates', ordered);
+  return ordered;
+
 }
 
-function solve(board, symbols, rankCandidates = shuffle, rankVacants = rankByCandidateCount) {
-  let btCount = 0, slides = [];
+function solve(board, symbols) {
+  let btCount = 0, slides = [board];
 
-  const reducer = (board, symbols) =>
-    reduce(rankVacants(vacants(board), board, symbols), (state, v) => {
-      if (complete(state)) return state;
-      const c = rankCandidates(candidates(state, symbols, v));
-      // console.log("solving ", quadrants(state));
-      // console.log(`for ${v} with ${c}`);
-      while(c.length)
-        try {
-          const m = c.pop(), newState = move(state, v, m);
-          slides.push(newState);
-          return reducer(newState, symbols);
-        } catch (e) {
-          // console.log("backtraking");
-          btCount++;
-        }
-      throw new Error(`no more candidates for position ${v}`);
-    }, board);
+  function solver(state) {
+    const vcs = vacantsByCandidateCount(state, symbols)
+    if (vcs.length < 1) return state; // done
 
+    const [v, candidates] = vcs.shift();
+    while (candidates.length) {
+      try {
+        const newState = move(state, v, candidates.shift());
+        slides.push(newState);
+        return solver(newState);
+      } catch(e) {
+        btCount++;
+      }
+    }
+    throw v;
+  }
+
+  const startTime = new Date().getTime()
   try {
-    console.time('finished in');
-    const result = reducer(board, symbols);
-    console.timeEnd('finished in');
-    return [ result, slides, btCount ];
-  } catch (e) {
-  console.timeEnd('finished in');
-    return [ null, slides, btCount ];
+    const result = solver(board, symbols);
+    const finishTime = new Date().getTime();
+    return [result, slides, btCount, finishTime - startTime];
+  } catch (v) {
+    const finishTime = new Date().getTime();
+    return [null, slides, btCount, finishTime - startTime, v];
   }
 }
 
 export { rank2Symbols, rank3Symbols, quadrants, rows, columns, complete, valid, vacants, locate,
-  candidates, move, solve, shuffle, identity, rankByCandidateCount };
+  candidates, move, solve};

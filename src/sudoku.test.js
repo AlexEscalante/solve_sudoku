@@ -1,7 +1,7 @@
 import { range } from 'lodash';
 
 import { rank2Symbols, rank3Symbols, quadrants, rows, columns, valid, complete, vacants, locate, candidates, move,
-  solve, identity, rankByCandidateCount, shuffle } from './sudoku';
+  solve, rankByCandidateCount} from './sudoku';
 
 const inputRank2 = [
   1, 2, 3, 4,
@@ -351,11 +351,6 @@ it('determines the list of possible moves, called candidates, for a given index'
   expect(candidates(unsolvedInputRank2_3, rank2Symbols, 11)).toEqual([]);
 })
 
-it('ranks vacants by the number of candidates', () => {
-  const result = [11, 19, 25, 30, 32, 37, 43, 55, 65, 69, 13, 15, 31, 34, 46, 49, 50, 61, 67, 10, 12, 14, 16, 28, 39, 48, 52, 64, 66, 68, 70, 41];
-  expect(rankByCandidateCount(vacants(unsolvedInputRank3), unsolvedInputRank3, rank3Symbols)).toEqual(result);
-})
-
 it('makes a move on a board', () => {
   const answer1 = [
     1, 0, 0, 4,
@@ -377,29 +372,22 @@ it('makes a move on a board', () => {
 });
 
 it('solves an unsolved sudoku using several strategies', () =>  {
-  for (const [strategyName, rankCandidates, rankVacants] of [
-    ["identities", identity, identity],
-    ["shuffling candidates", shuffle, identity],
-    ["shuffling candidates & ranking vacants by candidate count", shuffle, rankByCandidateCount]
-  ]) {
-    const inputs = [
-      ['unsolvedInputRank2', unsolvedInputRank2, rank2Symbols],
-      ['unsolvedInputRank3', unsolvedInputRank3, rank3Symbols],
-      ['unsolvedExtremeRank3', unsolvedExtremeRank3, rank3Symbols],
-    ];
+  const inputs = [
+    ['unsolvedInputRank2', unsolvedInputRank2, rank2Symbols],
+    ['unsolvedInputRank3', unsolvedInputRank3, rank3Symbols],
+    ['unsolvedExtremeRank3', unsolvedExtremeRank3, rank3Symbols],
+  ];
 
-    for (const [name, board, symbols, expectedBts] of inputs) {
-      const [result, slides, bts] = solve(board, symbols, rankCandidates, rankVacants);
-      console.warn(`solved ${name} with ${strategyName}: ${bts} bts, ${slides.length} slides`);
-      if (expectedBts) // non deterministic
-      expect(complete(result)).toBe(true);
-      expect(valid(result)).toBe(true);
-    }
+  for (const [name, board, symbols] of inputs) {
+    const [result, slides, bts, time] = solve(board, symbols);
+    console.warn(`solved ${name}: ${bts} bts, ${slides.length} slides in ${time} ms.`);
+    expect(complete(result)).toBe(true);
+    expect(valid(result)).toBe(true);
   }
 });
 
 it('fails to solve an impossible sudoku', () => {
-  const [result, slides, bts] = solve(badUnsolvedExtremeRank3, rank3Symbols, shuffle, rankByCandidateCount);
-  console.warn(`failed solving unsolvedExtremeRank3 ranking vacants by candidate count & shuffling candidates: ${bts} bts, slides: ${slides.length}`);
+  const [result, slides, bts, time] = solve(badUnsolvedExtremeRank3, rank3Symbols);
+  console.warn(`failed solving: ${bts} bts, ${slides.length} slides in ${time} ms.`);
   expect(result).toBe(null);
 })
