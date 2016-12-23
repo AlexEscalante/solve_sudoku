@@ -16,5 +16,5 @@ const unsolvedExtremeRank3 = [
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  ReactDOM.render(<App board={unsolvedExtremeRank3}/>, div);
+  ReactDOM.render(<App boards={[unsolvedExtremeRank3]}/>, div);
 });

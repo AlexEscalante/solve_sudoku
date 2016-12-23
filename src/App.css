@@ -42,6 +42,15 @@
   margin: 1em auto;
 }
 
+.messages.error {
+  color: red;
+}
+
+.Select {
+  width: 30em;
+  margin: 1em auto;
+}
+
 button {
   font-size: 1em;
   padding: .5em 1em;

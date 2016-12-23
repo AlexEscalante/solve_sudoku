@@ -5,6 +5,10 @@ import {
 const rank2Symbols = [ 1, 2, 3, 4 ];
 const rank3Symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ];
 
+function createBoard(rank) {
+  return Array(Math.pow(rank, 4)).fill(0);
+}
+
 // Convert a linear repsentation of sudoku
 // values into an array of arrays representing
 // rows.
@@ -100,7 +104,6 @@ function vacantsByCandidateCount(state, symbols) {
   const ordered = sortBy(vacantsWithCandidates, ([v, candidates]) => candidates.length);
   // console.log('vacantsWithCandidates', ordered);
   return ordered;
-
 }
 
 function solve(board, symbols) {
@@ -134,5 +137,8 @@ function solve(board, symbols) {
   }
 }
 
-export { rank2Symbols, rank3Symbols, quadrants, rows, columns, complete, valid, vacants, locate,
-  candidates, move, solve};
+export {
+  rank2Symbols, rank3Symbols, quadrants, rows,
+  columns, complete, valid, vacants, locate,
+  candidates, move, solve, createBoard
+};
